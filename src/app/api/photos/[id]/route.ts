@@ -32,7 +32,11 @@ export async function DELETE(
     data: { coverPhotoId: null },
   });
 
-  await deleteFromR2(photo.storageKey);
+  try {
+    await deleteFromR2(photo.storageKey);
+  } catch (err) {
+    console.error("R2 deletion failed (continuing with DB cleanup):", err);
+  }
   await db.productTag.deleteMany({ where: { photoId: id } });
   await db.photo.delete({ where: { id } });
 
