@@ -81,11 +81,14 @@ model User {
   likes        Like[]
   comments     Comment[]
   sentInvites  Invite[]
+  monthlyWinnersPicked MonthlyWinner[]
+  monthlyNominations   MonthlyNominee[]
 }
 
 model Album {
   id           String   @id @default(cuid())
   name         String
+  monthYear    String?  @unique // e.g. "2026-06"; null for any legacy manual albums
   description  String?
   coverPhotoId String?
   createdById  String
@@ -106,13 +109,20 @@ model Photo {
   uploadedById     String
   uploadedAt       DateTime @default(now())
   isDeleted        Boolean  @default(false)
+  takenAt          DateTime? // from EXIF DateTimeOriginal; falls back to uploadedAt
+  locationName     String?   // reverse-geocoded city/area e.g. "Frisco" or "Dallas"
+  locationLat      Float?    // raw GPS latitude
+  locationLng      Float?    // raw GPS longitude
+  mediaType        String   @default("photo") // "photo" or "video"
 
-  album        Album        @relation("AlbumPhotos", fields: [albumId], references: [id])
-  uploadedBy   User         @relation(fields: [uploadedById], references: [id])
-  productTags  ProductTag[]
-  likes        Like[]
-  comments     Comment[]
-  albumCovers  Album[]      @relation("AlbumCover")
+  album           Album           @relation("AlbumPhotos", fields: [albumId], references: [id])
+  uploadedBy      User            @relation(fields: [uploadedById], references: [id])
+  productTags     ProductTag[]
+  likes           Like[]
+  comments        Comment[]
+  albumCovers     Album[]         @relation("AlbumCover")
+  monthlyWinner   MonthlyWinner?
+  monthlyNominees MonthlyNominee[]
 }
 
 model ProductTag {
@@ -162,4 +172,30 @@ model Invite {
   expiresAt   DateTime
 
   invitedBy User @relation(fields: [invitedById], references: [id])
+}
+
+model MonthlyWinner {
+  id          String   @id @default(cuid())
+  photoId     String   @unique
+  month       String   // "2026-06"
+  category    String   // "photo" or "video"
+  pickedById  String
+  pickedAt    DateTime @default(now())
+  notes       String?
+
+  photo       Photo    @relation(fields: [photoId], references: [id])
+  pickedBy    User     @relation(fields: [pickedById], references: [id])
+}
+
+model MonthlyNominee {
+  id         String   @id @default(cuid())
+  photoId    String
+  month      String   // "2026-06"
+  nominatedById String
+  nominatedAt  DateTime @default(now())
+
+  photo        Photo  @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  nominatedBy  User   @relation(fields: [nominatedById], references: [id])
+
+  @@unique([photoId, month])
 }

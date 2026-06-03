@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 import { Wordmark } from "@/components/wordmark";
 import { TopNav, TopSearch } from "@/components/top-nav";
 import { UserMenu } from "@/components/user-menu";
-import { Button } from "@/components/ui/button";
+import { UploadPhotosButton } from "@/components/upload-photos-button";
 
 export default async function AppLayout({
   children,
@@ -26,10 +26,9 @@ export default async function AppLayout({
         </Link>
         <TopNav />
         <TopSearch />
-        {/* TODO: wire Upload to the active album's upload dialog; links to albums for now */}
-        <Button asChild variant="primary" size="sm" className="shrink-0">
-          <Link href="/albums">＋ Upload</Link>
-        </Button>
+        <div className="shrink-0">
+          <UploadPhotosButton />
+        </div>
         <UserMenu displayName={displayName} />
       </header>
       <main>{children}</main>

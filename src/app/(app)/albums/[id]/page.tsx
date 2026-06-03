@@ -5,7 +5,10 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getPresignedDownloadUrl } from "@/lib/r2";
 import { UploadPhotosButton } from "@/components/upload-photos-button";
-import { PhotoCard } from "@/components/photo-card";
+import {
+  PhotoGridSelectable,
+  type SelectablePhoto,
+} from "@/components/photo-grid-selectable";
 
 export default async function AlbumDetailPage(props: PageProps<"/albums/[id]">) {
   const { id } = await props.params;
@@ -19,20 +22,30 @@ export default async function AlbumDetailPage(props: PageProps<"/albums/[id]">) 
       photos: {
         where: { isDeleted: false },
         orderBy: { uploadedAt: "desc" },
-        include: { productTags: true },
+        include: {
+          productTags: true,
+          uploadedBy: { select: { name: true, email: true } },
+          likes: { select: { userId: true } },
+        },
       },
     },
   });
 
   if (!album) notFound();
 
-  const photos = await Promise.all(
+  const photos: SelectablePhoto[] = await Promise.all(
     album.photos.map(async (photo) => ({
       id: photo.id,
       url: await getPresignedDownloadUrl(photo.storageKey),
       filename: photo.originalFilename,
       tags: photo.productTags.map((t) => t.code),
-      uploadedById: photo.uploadedById,
+      canDelete: role === "admin" || photo.uploadedById === currentUserId,
+      uploaderName: photo.uploadedBy.name ?? photo.uploadedBy.email,
+      likeCount: photo.likes.length,
+      isLiked: currentUserId
+        ? photo.likes.some((l) => l.userId === currentUserId)
+        : false,
+      mediaType: photo.mediaType,
     })),
   );
 
@@ -55,7 +68,7 @@ export default async function AlbumDetailPage(props: PageProps<"/albums/[id]">) 
             </p>
           )}
         </div>
-        <UploadPhotosButton albumId={album.id} />
+        <UploadPhotosButton />
       </div>
 
       {photos.length === 0 ? (
@@ -66,18 +79,8 @@ export default async function AlbumDetailPage(props: PageProps<"/albums/[id]">) 
           </p>
         </div>
       ) : (
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {photos.map((photo) => (
-            <PhotoCard
-              key={photo.id}
-              albumId={album.id}
-              photoId={photo.id}
-              url={photo.url}
-              filename={photo.filename}
-              tags={photo.tags}
-              canDelete={role === "admin" || photo.uploadedById === currentUserId}
-            />
-          ))}
+        <div className="mt-8">
+          <PhotoGridSelectable albumId={album.id} photos={photos} />
         </div>
       )}
     </div>

@@ -3,10 +3,17 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { Star, Trophy } from "lucide-react";
 
-const navItems = [
+const navItems: {
+  label: string;
+  href: string;
+  Icon?: typeof Trophy;
+}[] = [
   { label: "Albums", href: "/albums" },
   { label: "Search", href: "/search" },
+  { label: "Leaderboard", href: "/leaderboard", Icon: Trophy },
+  { label: "Hall of Fame", href: "/hall-of-fame", Icon: Star },
 ];
 
 export function TopNav() {
@@ -19,14 +26,16 @@ export function TopNav() {
           item.href === "/albums"
             ? pathname === "/albums" || pathname.startsWith("/albums/")
             : pathname.startsWith(item.href);
+        const Icon = item.Icon;
         return (
           <Link
             key={item.href}
             href={item.href}
-            className={`relative pb-1 font-[family-name:var(--font-montserrat)] text-sm font-semibold transition-colors ${
+            className={`relative inline-flex items-center gap-1.5 pb-1 font-[family-name:var(--font-montserrat)] text-sm font-semibold transition-colors ${
               active ? "text-white" : "text-white/55 hover:text-white/80"
             }`}
           >
+            {Icon && <Icon className="h-4 w-4" />}
             {item.label}
             {active && (
               <span className="absolute -bottom-[2px] left-0 h-[3px] w-full rounded-full bg-[var(--cyan)]" />

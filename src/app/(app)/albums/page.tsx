@@ -2,14 +2,14 @@ import { ImageIcon } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getPresignedDownloadUrl } from "@/lib/r2";
-import { CreateAlbumDialog } from "@/components/create-album-dialog";
 import { AlbumCard } from "@/components/album-card";
 
 export default async function AlbumsPage() {
   await auth();
 
   const albums = await db.album.findMany({
-    orderBy: { createdAt: "desc" },
+    // Auto-generated month albums sort newest-first; legacy (null monthYear) fall to the end.
+    orderBy: [{ monthYear: { sort: "desc", nulls: "last" } }, { createdAt: "desc" }],
     include: {
       coverPhoto: true,
       _count: {
@@ -54,16 +54,13 @@ export default async function AlbumsPage() {
             {totalPhotos} {totalPhotos === 1 ? "photo" : "photos"}
           </p>
         </div>
-        <div className="ml-auto">
-          <CreateAlbumDialog />
-        </div>
       </div>
 
       {albumsWithCover.length === 0 ? (
         <div className="mx-7 mb-7 flex flex-col items-center justify-center rounded-[18px] border border-dashed border-[var(--line-2)] py-20 text-center">
           <ImageIcon className="h-10 w-10 text-[var(--ink-3)]" />
           <p className="mt-4 font-[family-name:var(--font-mukta)] text-[15px] text-[var(--ink-3)]">
-            No albums yet. Create your first one.
+            No albums yet. Upload photos to get started — albums are created automatically by month.
           </p>
         </div>
       ) : (
