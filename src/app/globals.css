@@ -31,11 +31,9 @@
   --orange: #f7941e;
   --purple: #6c5ce7;
 
-  /* Legacy token aliases mapped to brand tokens (light-mode only) */
+  /* Legacy aliases for any components still using old token names */
   --background: var(--paper);
   --foreground: var(--ink);
-  --primary: var(--ink);
-  --primary-foreground: #ffffff;
   --muted: var(--bg);
   --muted-foreground: var(--ink-3);
   --border: var(--line);
@@ -43,7 +41,10 @@
   --destructive: var(--pink);
   --card: var(--paper);
   --card-foreground: var(--ink);
-  --radius: 0.625rem;
+}
+
+html {
+  background: var(--bg);
 }
 
 body {
