@@ -71,7 +71,7 @@ export default async function AlbumDetailPage(props: PageProps<"/albums/[id]">) 
         </div>
         <div className="flex items-center gap-2">
           <DownloadAlbumButton
-            photoIds={photos.map((p) => p.id)}
+            photoIds={photos.filter((p) => p.tags.length > 0).map((p) => p.id)}
             albumName={album.name}
           />
           <UploadPhotosButton />

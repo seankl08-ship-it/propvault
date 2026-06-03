@@ -41,7 +41,7 @@ export function DownloadAlbumButton({ photoIds, albumName }: DownloadAlbumButton
   return (
     <Button variant="outline" size="sm" onClick={handleDownload} disabled={busy}>
       <Download className="h-4 w-4" />
-      {busy ? "Zipping…" : "Download All"}
+      {busy ? "Zipping…" : `Download Tagged (${photoIds.length})`}
     </Button>
   );
 }
