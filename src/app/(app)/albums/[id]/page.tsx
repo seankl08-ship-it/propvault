@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getPresignedDownloadUrl } from "@/lib/r2";
 import { UploadPhotosButton } from "@/components/upload-photos-button";
+import { DownloadAlbumButton } from "@/components/download-album-button";
 import {
   PhotoGridSelectable,
   type SelectablePhoto,
@@ -68,7 +69,13 @@ export default async function AlbumDetailPage(props: PageProps<"/albums/[id]">) 
             </p>
           )}
         </div>
-        <UploadPhotosButton />
+        <div className="flex items-center gap-2">
+          <DownloadAlbumButton
+            photoIds={photos.map((p) => p.id)}
+            albumName={album.name}
+          />
+          <UploadPhotosButton />
+        </div>
       </div>
 
       {photos.length === 0 ? (

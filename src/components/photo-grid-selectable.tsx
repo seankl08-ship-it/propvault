@@ -115,20 +115,27 @@ export function PhotoGridSelectable({
         {photos.map((photo) => (
           <div key={photo.id} className="relative">
             {selecting && (
-              <button
-                type="button"
-                onClick={() => toggle(photo.id)}
-                aria-label={
-                  selected.has(photo.id) ? "Deselect photo" : "Select photo"
-                }
-                className={`absolute left-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-md border-2 ${
-                  selected.has(photo.id)
-                    ? "border-[var(--pink)] bg-[var(--pink)] text-white"
-                    : "border-white bg-black/40 text-transparent"
-                }`}
-              >
-                <Check className="h-4 w-4" />
-              </button>
+              <>
+                {/* Full-card click target */}
+                <button
+                  type="button"
+                  onClick={() => toggle(photo.id)}
+                  aria-label={
+                    selected.has(photo.id) ? "Deselect photo" : "Select photo"
+                  }
+                  className="absolute inset-0 z-20 cursor-pointer rounded-lg"
+                />
+                {/* Corner indicator */}
+                <span
+                  className={`pointer-events-none absolute left-2 top-2 z-30 flex h-7 w-7 items-center justify-center rounded-md border-2 ${
+                    selected.has(photo.id)
+                      ? "border-[var(--pink)] bg-[var(--pink)] text-white"
+                      : "border-white bg-black/40 text-transparent"
+                  }`}
+                >
+                  <Check className="h-4 w-4" />
+                </span>
+              </>
             )}
             <div
               className={
