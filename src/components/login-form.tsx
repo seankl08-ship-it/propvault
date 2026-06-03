@@ -3,6 +3,11 @@
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
+const fieldLabel =
+  "font-[family-name:var(--font-montserrat)] font-semibold uppercase tracking-[0.1em] text-[11px] text-[var(--ink-2)]";
 
 export function LoginForm() {
   const router = useRouter();
@@ -38,47 +43,54 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+        <p className="rounded-[10px] bg-[var(--pink)]/10 px-3 py-2 font-[family-name:var(--font-mukta)] text-[14px] text-[var(--pink)]">
           {error}
         </p>
       )}
-      <div className="space-y-1">
-        <label htmlFor="email" className="block text-sm font-medium">
+      <div className="space-y-1.5">
+        <label htmlFor="email" className={`block ${fieldLabel}`}>
           Email
         </label>
-        <input
+        <Input
           id="email"
           type="email"
           required
           autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-700 dark:bg-zinc-900"
           placeholder="you@example.com"
         />
       </div>
-      <div className="space-y-1">
-        <label htmlFor="password" className="block text-sm font-medium">
-          Password
-        </label>
-        <input
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+          <label htmlFor="password" className={fieldLabel}>
+            Password
+          </label>
+          <a
+            href="#"
+            className="font-[family-name:var(--font-mukta)] text-[13px] font-medium text-[var(--cyan)]"
+          >
+            Forgot?
+          </a>
+        </div>
+        <Input
           id="password"
           type="password"
           required
           autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-700 dark:bg-zinc-900"
           placeholder="••••••••"
         />
       </div>
-      <button
+      <Button
         type="submit"
+        variant="primary"
         disabled={loading}
-        className="w-full rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+        className="w-full"
       >
         {loading ? "Signing in…" : "Sign in"}
-      </button>
+      </Button>
     </form>
   );
 }

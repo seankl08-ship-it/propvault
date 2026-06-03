@@ -1,8 +1,18 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Montserrat, Mukta } from "next/font/google";
 import "./globals.css";
 
-const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  weight: ["600", "700", "800"],
+  variable: "--font-montserrat",
+});
+
+const mukta = Mukta({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-mukta",
+});
 
 export const metadata: Metadata = {
   title: "PropVault",
@@ -11,8 +21,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geist.variable} h-full antialiased`}>
-      <body className="min-h-full bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50">
+    <html
+      lang="en"
+      className={`${montserrat.variable} ${mukta.variable} h-full antialiased`}
+    >
+      <body className="min-h-full bg-[var(--bg)] text-[var(--ink)]">
         {children}
       </body>
     </html>

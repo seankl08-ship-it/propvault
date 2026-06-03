@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -52,9 +51,8 @@ export function CreateAlbumDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="md">
-          <Plus className="h-4 w-4" />
-          New Album
+        <Button variant="ghost" size="sm">
+          ＋ New album
         </Button>
       </DialogTrigger>
       <DialogContent>
