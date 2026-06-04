@@ -114,20 +114,19 @@ export function PhotoGridSelectable({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {photos.map((photo) => (
           <div key={photo.id} className="relative">
+            {/* In select mode: disable all card interactions and capture the whole area */}
             {selecting && (
               <>
-                {/* Full-card click target */}
                 <button
                   type="button"
                   onClick={() => toggle(photo.id)}
                   aria-label={
                     selected.has(photo.id) ? "Deselect photo" : "Select photo"
                   }
-                  className="absolute inset-0 z-20 cursor-pointer rounded-lg"
+                  className="absolute inset-0 z-50 cursor-pointer rounded-lg"
                 />
-                {/* Corner indicator */}
                 <span
-                  className={`pointer-events-none absolute left-2 top-2 z-30 flex h-7 w-7 items-center justify-center rounded-md border-2 ${
+                  className={`pointer-events-none absolute left-2 top-2 z-[60] flex h-7 w-7 items-center justify-center rounded-md border-2 ${
                     selected.has(photo.id)
                       ? "border-[var(--pink)] bg-[var(--pink)] text-white"
                       : "border-white bg-black/40 text-transparent"
@@ -138,11 +137,14 @@ export function PhotoGridSelectable({
               </>
             )}
             <div
-              className={
+              className={[
+                selecting ? "pointer-events-none" : "",
                 selecting && selected.has(photo.id)
                   ? "rounded-lg ring-2 ring-[var(--pink)]"
-                  : undefined
-              }
+                  : "",
+              ]
+                .filter(Boolean)
+                .join(" ") || undefined}
             >
               <PhotoCard
                 albumId={albumId}
