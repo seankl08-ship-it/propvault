@@ -23,8 +23,8 @@ export function Wordmark({ size = "default", dark = false }: WordmarkProps) {
         }}
       >
         <span style={{ background: "var(--orange)" }} />
-        <span style={{ background: "var(--pink)" }} />
         <span style={{ background: "var(--cyan)" }} />
+        <span style={{ background: "var(--pink)" }} />
         <span style={{ background: "var(--green)" }} />
       </span>
       <span
