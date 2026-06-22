@@ -53,45 +53,32 @@ export async function extractMediaMeta(
   }
 
   try {
-    const parsed = await exifr.parse(buffer, {
-      pick: [
-        "DateTimeOriginal",
-        "GPSLatitude",
-        "GPSLongitude",
-        "GPSLatitudeRef",
-        "GPSLongitudeRef",
-      ],
-    });
-
-    if (!parsed) return { ...EMPTY };
+    // exifr.gps() returns decimal degrees reliably — using pick on GPSLatitude
+    // returns raw DMS arrays which fail a typeof === "number" check.
+    const [parsed, gps] = await Promise.all([
+      exifr.parse(buffer, { pick: ["DateTimeOriginal"] }).catch(() => null),
+      exifr.gps(buffer).catch(() => null),
+    ]);
 
     let takenAt: Date | null = null;
-    if (parsed.DateTimeOriginal instanceof Date) {
+    if (parsed?.DateTimeOriginal instanceof Date) {
       takenAt = parsed.DateTimeOriginal;
-    } else if (parsed.DateTimeOriginal) {
-      const d = new Date(parsed.DateTimeOriginal);
+    } else if (parsed?.DateTimeOriginal) {
+      const d = new Date(parsed.DateTimeOriginal as string);
       takenAt = isNaN(d.getTime()) ? null : d;
     }
 
-    // exifr's `pick` of GPSLatitude/GPSLongitude returns decimal numbers,
-    // already sign-corrected when refs are included in the pick list.
-    const lat =
-      typeof parsed.GPSLatitude === "number" ? parsed.GPSLatitude : null;
-    const lng =
-      typeof parsed.GPSLongitude === "number" ? parsed.GPSLongitude : null;
+    const lat = gps?.latitude ?? null;
+    const lng = gps?.longitude ?? null;
 
     let locationName: string | null = null;
     if (lat !== null && lng !== null) {
       locationName = await reverseGeocode(lat, lng);
     }
 
-    return {
-      takenAt,
-      locationName,
-      locationLat: lat,
-      locationLng: lng,
-    };
+    return { takenAt, locationName, locationLat: lat, locationLng: lng };
   } catch {
     return { ...EMPTY };
   }
 }
+
