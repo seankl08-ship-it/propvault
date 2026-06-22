@@ -95,12 +95,10 @@ export default async function PhotoDetailPage(
             <p className="mt-1 font-[family-name:var(--font-mukta)] text-sm text-[var(--ink-3)]">
               Uploaded by {uploaderName} · {displayDate}
             </p>
-            {photo.locationName && (
-              <p className="mt-1 inline-flex items-center gap-1 font-[family-name:var(--font-mukta)] text-sm text-[var(--ink-3)]">
-                <MapPin className="h-3.5 w-3.5" />
-                {photo.locationName}
-              </p>
-            )}
+            <p className="mt-1 inline-flex items-center gap-1 font-[family-name:var(--font-mukta)] text-sm text-[var(--ink-3)]">
+              <MapPin className="h-3.5 w-3.5" />
+              {photo.locationName ?? "None"}
+            </p>
           </div>
 
           <div className="flex items-center gap-2">

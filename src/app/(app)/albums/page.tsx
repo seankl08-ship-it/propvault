@@ -18,7 +18,7 @@ export default async function AlbumsPage() {
     },
   });
 
-  const albumsWithCover = await Promise.all(
+  const allAlbumsWithCover = await Promise.all(
     albums.map(async (album) => {
       let coverUrl: string | null = null;
       if (album.coverPhoto && !album.coverPhoto.isDeleted) {
@@ -35,6 +35,9 @@ export default async function AlbumsPage() {
       return { ...album, coverUrl };
     }),
   );
+
+  // Only show albums that have at least one photo
+  const albumsWithCover = allAlbumsWithCover.filter((a) => a._count.photos > 0);
 
   const totalPhotos = albumsWithCover.reduce(
     (sum, a) => sum + a._count.photos,
