@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { Wordmark } from "@/components/wordmark";
-import { TopNav, TopSearch } from "@/components/top-nav";
+import { TopNav, TopSearch, MobileMenuButton } from "@/components/top-nav";
 import { UserMenu } from "@/components/user-menu";
 import { UploadPhotosButton } from "@/components/upload-photos-button";
 
@@ -30,6 +30,7 @@ export default async function AppLayout({
           <UploadPhotosButton />
         </div>
         <UserMenu displayName={displayName} />
+        <MobileMenuButton />
       </header>
       <main>{children}</main>
     </div>

@@ -2,10 +2,10 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Upload } from "lucide-react";
+import { Upload, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export function UploadPhotosButton() {
+export function UploadPhotosButton({ albumId }: { albumId?: string }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -25,6 +25,7 @@ export function UploadPhotosButton() {
     for (let i = 0; i < files.length; i++) {
       const formData = new FormData();
       formData.append("file", files[i]);
+      if (albumId) formData.append("albumId", albumId);
 
       const res = await fetch("/api/photos", {
         method: "POST",
@@ -54,7 +55,9 @@ export function UploadPhotosButton() {
         onChange={handleFiles}
       />
       <Button onClick={() => inputRef.current?.click()} disabled={uploading}>
-        <Upload className="h-4 w-4" />
+        {uploading
+          ? <Loader2 className="h-4 w-4 animate-spin" />
+          : <Upload className="h-4 w-4" />}
         {uploading && progress
           ? `Uploading ${progress.done}/${progress.total}…`
           : "Upload"}

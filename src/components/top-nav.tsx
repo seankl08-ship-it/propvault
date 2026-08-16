@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { Star, Trophy } from "lucide-react";
+import { Star, Trophy, Menu, X } from "lucide-react";
 
 const navItems: {
   label: string;
@@ -11,7 +11,6 @@ const navItems: {
   Icon?: typeof Trophy;
 }[] = [
   { label: "Albums", href: "/albums" },
-  { label: "Search", href: "/search" },
   { label: "Leaderboard", href: "/leaderboard", Icon: Trophy },
   { label: "Hall of Fame", href: "/hall-of-fame", Icon: Star },
 ];
@@ -44,6 +43,50 @@ export function TopNav() {
         );
       })}
     </nav>
+  );
+}
+
+export function MobileMenuButton() {
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative md:hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="inline-flex h-9 w-9 items-center justify-center rounded-md text-white/70 hover:text-white"
+        aria-label="Menu"
+      >
+        {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full z-50 mt-1 w-48 overflow-hidden rounded-xl border border-white/10 bg-[var(--ink)] shadow-xl">
+          {navItems.map((item) => {
+            const active =
+              item.href === "/albums"
+                ? pathname === "/albums" || pathname.startsWith("/albums/")
+                : pathname.startsWith(item.href);
+            const Icon = item.Icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setOpen(false)}
+                className={`flex items-center gap-2 px-4 py-3 font-[family-name:var(--font-montserrat)] text-sm font-semibold transition-colors ${
+                  active
+                    ? "bg-white/10 text-white"
+                    : "text-white/60 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                {Icon && <Icon className="h-4 w-4" />}
+                {item.label}
+              </Link>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }
 
