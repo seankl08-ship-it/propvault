@@ -15,12 +15,17 @@ const navItems: {
   { label: "Hall of Fame", href: "/hall-of-fame", Icon: Star },
 ];
 
-export function TopNav() {
+export function TopNav({ isAdmin }: { isAdmin?: boolean }) {
   const pathname = usePathname();
+
+  const items = [
+    ...navItems,
+    ...(isAdmin ? [{ label: "Pick Winners", href: "/admin/pick-winner", Icon: Trophy }] : []),
+  ];
 
   return (
     <nav className="hidden items-center gap-5 md:flex">
-      {navItems.map((item) => {
+      {items.map((item) => {
         const active =
           item.href === "/albums"
             ? pathname === "/albums" || pathname.startsWith("/albums/")
@@ -46,9 +51,14 @@ export function TopNav() {
   );
 }
 
-export function MobileMenuButton() {
+export function MobileMenuButton({ isAdmin }: { isAdmin?: boolean }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+
+  const items = [
+    ...navItems,
+    ...(isAdmin ? [{ label: "Pick Winners", href: "/admin/pick-winner", Icon: Trophy }] : []),
+  ];
 
   return (
     <div className="relative md:hidden">
@@ -62,7 +72,7 @@ export function MobileMenuButton() {
       </button>
       {open && (
         <div className="absolute right-0 top-full z-50 mt-1 w-48 overflow-hidden rounded-xl border border-white/10 bg-[var(--ink)] shadow-xl">
-          {navItems.map((item) => {
+          {items.map((item) => {
             const active =
               item.href === "/albums"
                 ? pathname === "/albums" || pathname.startsWith("/albums/")

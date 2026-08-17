@@ -15,6 +15,7 @@ export default async function AppLayout({
   if (!session) redirect("/login");
 
   const displayName = session.user?.name ?? session.user?.email ?? "User";
+  const isAdmin = (session.user as { role?: string } | undefined)?.role === "admin";
 
   return (
     <div className="min-h-screen">
@@ -24,13 +25,13 @@ export default async function AppLayout({
         <Link href="/albums" className="shrink-0">
           <Wordmark dark size="sm" />
         </Link>
-        <TopNav />
+        <TopNav isAdmin={isAdmin} />
         <TopSearch />
         <div className="shrink-0">
           <UploadPhotosButton />
         </div>
         <UserMenu displayName={displayName} />
-        <MobileMenuButton />
+        <MobileMenuButton isAdmin={isAdmin} />
       </header>
       <main>{children}</main>
     </div>
