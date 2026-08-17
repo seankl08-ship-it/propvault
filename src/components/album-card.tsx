@@ -51,7 +51,7 @@ export function AlbumCard({
           </div>
         )}
         <span className="absolute bottom-2.5 left-2.5 rounded-full bg-white/[0.92] px-2.5 py-1 font-[family-name:var(--font-montserrat)] text-[12px] font-bold text-[var(--ink)]">
-          {photoCount} {photoCount === 1 ? "photo" : "photos"}
+          {photoCount} {photoCount === 1 ? "post" : "posts"}
         </span>
       </div>
       <div className="mt-2.5 flex items-baseline justify-between gap-2">

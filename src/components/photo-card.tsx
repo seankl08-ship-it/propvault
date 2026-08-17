@@ -88,7 +88,7 @@ export function PhotoCard({
           </div>
         </Link>
 
-        <div className="pointer-events-none absolute inset-0 flex flex-col justify-between bg-gradient-to-t from-black/60 via-transparent to-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+        <div className="pointer-events-none absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/60 via-transparent to-black/40 opacity-0 transition-opacity group-hover:opacity-100">
           <div className="flex justify-end gap-1 p-2">
             <button
               type="button"
@@ -116,34 +116,32 @@ export function PhotoCard({
               </div>
             )}
           </div>
-          {tags.length > 0 && (
-            <div className="flex flex-wrap gap-1 p-2">
-              {tags.map((tag) => (
-                <Badge
-                  key={tag}
-                  variant="secondary"
-                  className="bg-white/90 text-black"
-                >
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          )}
         </div>
       </div>
 
-      <div className="mt-1.5 flex items-center justify-between gap-2">
-        <span className="truncate font-[family-name:var(--font-mukta)] text-[13px] text-[var(--ink-3)]">
-          {uploaderName}
-        </span>
-        <span className="flex shrink-0 items-center gap-1 font-[family-name:var(--font-mukta)] text-[13px] text-[var(--ink-3)]">
-          <Heart
-            className="h-3.5 w-3.5"
-            fill={liked ? "var(--pink)" : "none"}
-            stroke={liked ? "var(--pink)" : "currentColor"}
-          />
-          {count}
-        </span>
+      <div className="mt-1.5 space-y-1">
+        {tags.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {tags.map((tag) => (
+              <Badge key={tag} variant="secondary">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        )}
+        <div className="flex items-center justify-between gap-2">
+          <span className="truncate font-[family-name:var(--font-mukta)] text-[13px] text-[var(--ink-3)]">
+            {uploaderName}
+          </span>
+          <span className="flex shrink-0 items-center gap-1 font-[family-name:var(--font-mukta)] text-[13px] text-[var(--ink-3)]">
+            <Heart
+              className="h-3.5 w-3.5"
+              fill={liked ? "var(--pink)" : "none"}
+              stroke={liked ? "var(--pink)" : "currentColor"}
+            />
+            {count}
+          </span>
+        </div>
       </div>
     </div>
   );
