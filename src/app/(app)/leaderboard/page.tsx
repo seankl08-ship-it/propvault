@@ -29,11 +29,6 @@ export default async function LeaderboardPage() {
   const isAdmin = (session?.user as { role?: string } | undefined)?.role === "admin";
   const month = currentMonthKey();
 
-  // Window for the current month.
-  const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-
   const sixMonthsAgo = new Date();
   sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
@@ -46,7 +41,7 @@ export default async function LeaderboardPage() {
     db.photo.findMany({
       where: {
         isDeleted: false,
-        uploadedAt: { gte: monthStart, lt: monthEnd },
+        album: { monthYear: month },
       },
       include: {
         uploadedBy: { select: { name: true, email: true } },

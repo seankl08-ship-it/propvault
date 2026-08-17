@@ -1,21 +1,21 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft, Trophy } from "lucide-react";
+import { ArrowLeft, Trophy, Check } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getPresignedDownloadUrl } from "@/lib/r2";
 import { PickWinnerForm } from "@/components/pick-winner-form";
 
-function getPreviousMonthKey(): { key: string; label: string } {
+function getPast6Months(): { key: string; label: string }[] {
+  const months = [];
   const now = new Date();
-  const year = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
-  const month = now.getMonth() === 0 ? 12 : now.getMonth();
-  const key = `${year}-${String(month).padStart(2, "0")}`;
-  const label = new Date(year, month - 1, 1).toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-  });
-  return { key, label };
+  for (let i = 1; i <= 6; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const label = d.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+    months.push({ key, label });
+  }
+  return months;
 }
 
 export default async function PickWinnerPage(props: PageProps<"/admin/pick-winner">) {
@@ -23,19 +23,27 @@ export default async function PickWinnerPage(props: PageProps<"/admin/pick-winne
   const role = (session?.user as { role?: string } | undefined)?.role;
   if (role !== "admin") redirect("/albums");
 
-  const { key, label } = getPreviousMonthKey();
   const searchParams = await props.searchParams;
+  const months = getPast6Months();
+  const selectedKey = typeof searchParams.month === "string" && months.some(m => m.key === searchParams.month)
+    ? searchParams.month
+    : months[0].key;
+  const selectedMonth = months.find(m => m.key === selectedKey)!;
   const override = searchParams.override === "true";
 
-  const existingWinners = await db.monthlyWinner.findMany({ where: { month: key } });
+  // Load existing winners for ALL 6 months (for the tab badges)
+  const allWinners = await db.monthlyWinner.findMany({
+    where: { month: { in: months.map(m => m.key) } },
+    select: { month: true },
+  });
+  const wonMonths = new Set(allWinners.map(w => w.month));
+
+  // Load top 10 photos and videos for the selected month
+  const existingWinners = await db.monthlyWinner.findMany({ where: { month: selectedKey } });
 
   const [top10Photos, top10Videos] = await Promise.all([
     db.photo.findMany({
-      where: {
-        isDeleted: false,
-        mediaType: "photo",
-        album: { monthYear: key },
-      },
+      where: { isDeleted: false, mediaType: "photo", album: { monthYear: selectedKey } },
       orderBy: { likes: { _count: "desc" } },
       take: 10,
       include: {
@@ -44,11 +52,7 @@ export default async function PickWinnerPage(props: PageProps<"/admin/pick-winne
       },
     }),
     db.photo.findMany({
-      where: {
-        isDeleted: false,
-        mediaType: "video",
-        album: { monthYear: key },
-      },
+      where: { isDeleted: false, mediaType: "video", album: { monthYear: selectedKey } },
       orderBy: { likes: { _count: "desc" } },
       take: 10,
       include: {
@@ -95,40 +99,66 @@ export default async function PickWinnerPage(props: PageProps<"/admin/pick-winne
             Pick Winners
           </h1>
           <p className="font-[family-name:var(--font-mukta)] text-sm text-[var(--ink-3)]">
-            {label} · Admin only
+            Admin only · Select a month below
           </p>
         </div>
       </div>
 
-      {alreadyPicked ? (
-        <div className="mt-8 rounded-xl border border-[var(--orange)]/30 bg-[var(--orange)]/5 px-6 py-8">
-          <p className="font-[family-name:var(--font-montserrat)] font-bold text-[var(--ink)]">
-            Winners already declared for {label}
-          </p>
-          <p className="mt-1 font-[family-name:var(--font-mukta)] text-sm text-[var(--ink-3)]">
-            {existingWinners.length} winner{existingWinners.length !== 1 ? "s" : ""} recorded.
-            View them in the{" "}
-            <Link href="/hall-of-fame" className="text-[var(--cyan)] underline underline-offset-2">
-              Hall of Fame
+      {/* Month tabs */}
+      <div className="mt-6 flex flex-wrap gap-2">
+        {months.map((m) => {
+          const isSelected = m.key === selectedKey;
+          const hasPick = wonMonths.has(m.key);
+          return (
+            <Link
+              key={m.key}
+              href={`/admin/pick-winner?month=${m.key}`}
+              className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 font-[family-name:var(--font-montserrat)] text-sm font-semibold transition-colors ${
+                isSelected
+                  ? "bg-[var(--ink)] text-white"
+                  : "border border-[var(--line)] bg-[var(--paper)] text-[var(--ink-2)] hover:bg-[var(--muted)]"
+              }`}
+            >
+              {m.label}
+              {hasPick && (
+                <Check className={`h-3.5 w-3.5 ${isSelected ? "text-[var(--cyan)]" : "text-[var(--green)]"}`} />
+              )}
             </Link>
-            .
-          </p>
-          <Link
-            href="/admin/pick-winner?override=true"
-            className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-[var(--line)] bg-[var(--paper)] px-4 py-2 font-[family-name:var(--font-montserrat)] text-sm font-semibold text-[var(--ink)] transition-colors hover:bg-[var(--muted)]"
-          >
-            Change Winners
-          </Link>
-        </div>
-      ) : (
-        <PickWinnerForm
-          month={key}
-          monthLabel={label}
-          photos={photoEntries}
-          videos={videoEntries}
-          isOverride={override && existingWinners.length > 0}
-        />
-      )}
+          );
+        })}
+      </div>
+
+      <div className="mt-6">
+        {alreadyPicked ? (
+          <div className="rounded-xl border border-[var(--orange)]/30 bg-[var(--orange)]/5 px-6 py-8">
+            <p className="font-[family-name:var(--font-montserrat)] font-bold text-[var(--ink)]">
+              Winners already declared for {selectedMonth.label}
+            </p>
+            <p className="mt-1 font-[family-name:var(--font-mukta)] text-sm text-[var(--ink-3)]">
+              {existingWinners.length} winner{existingWinners.length !== 1 ? "s" : ""} recorded.
+              View them in the{" "}
+              <Link href="/hall-of-fame" className="text-[var(--cyan)] underline underline-offset-2">
+                Hall of Fame
+              </Link>
+              .
+            </p>
+            <Link
+              href={`/admin/pick-winner?month=${selectedKey}&override=true`}
+              className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-[var(--line)] bg-[var(--paper)] px-4 py-2 font-[family-name:var(--font-montserrat)] text-sm font-semibold text-[var(--ink)] transition-colors hover:bg-[var(--muted)]"
+            >
+              Change Winners
+            </Link>
+          </div>
+        ) : (
+          <PickWinnerForm
+            month={selectedKey}
+            monthLabel={selectedMonth.label}
+            photos={photoEntries}
+            videos={videoEntries}
+            isOverride={override && existingWinners.length > 0}
+          />
+        )}
+      </div>
     </div>
   );
 }
