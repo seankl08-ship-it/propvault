@@ -6,15 +6,16 @@ import { db } from "@/lib/db";
 import { getPresignedDownloadUrl } from "@/lib/r2";
 import { PickWinnerForm } from "@/components/pick-winner-form";
 
-function getPreviousMonth(): { key: string; label: string; start: Date; end: Date } {
+function getPreviousMonthKey(): { key: string; label: string } {
   const now = new Date();
   const year = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
   const month = now.getMonth() === 0 ? 12 : now.getMonth();
   const key = `${year}-${String(month).padStart(2, "0")}`;
-  const start = new Date(year, month - 1, 1);
-  const end = new Date(year, month, 1);
-  const label = start.toLocaleDateString("en-US", { month: "long", year: "numeric" });
-  return { key, label, start, end };
+  const label = new Date(year, month - 1, 1).toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
+  return { key, label };
 }
 
 export default async function PickWinnerPage() {
@@ -22,13 +23,17 @@ export default async function PickWinnerPage() {
   const role = (session?.user as { role?: string } | undefined)?.role;
   if (role !== "admin") redirect("/albums");
 
-  const { key, label, start, end } = getPreviousMonth();
+  const { key, label } = getPreviousMonthKey();
 
   const existingWinners = await db.monthlyWinner.findMany({ where: { month: key } });
 
   const [top10Photos, top10Videos] = await Promise.all([
     db.photo.findMany({
-      where: { isDeleted: false, uploadedAt: { gte: start, lt: end }, mediaType: "photo" },
+      where: {
+        isDeleted: false,
+        mediaType: "photo",
+        album: { monthYear: key },
+      },
       orderBy: { likes: { _count: "desc" } },
       take: 10,
       include: {
@@ -37,7 +42,11 @@ export default async function PickWinnerPage() {
       },
     }),
     db.photo.findMany({
-      where: { isDeleted: false, uploadedAt: { gte: start, lt: end }, mediaType: "video" },
+      where: {
+        isDeleted: false,
+        mediaType: "video",
+        album: { monthYear: key },
+      },
       orderBy: { likes: { _count: "desc" } },
       take: 10,
       include: {
