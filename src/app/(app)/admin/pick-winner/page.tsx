@@ -18,12 +18,14 @@ function getPreviousMonthKey(): { key: string; label: string } {
   return { key, label };
 }
 
-export default async function PickWinnerPage() {
+export default async function PickWinnerPage(props: PageProps<"/admin/pick-winner">) {
   const session = await auth();
   const role = (session?.user as { role?: string } | undefined)?.role;
   if (role !== "admin") redirect("/albums");
 
   const { key, label } = getPreviousMonthKey();
+  const searchParams = await props.searchParams;
+  const override = searchParams.override === "true";
 
   const existingWinners = await db.monthlyWinner.findMany({ where: { month: key } });
 
@@ -74,7 +76,7 @@ export default async function PickWinnerPage() {
     toEntries(top10Videos),
   ]);
 
-  const alreadyPicked = existingWinners.length > 0;
+  const alreadyPicked = existingWinners.length > 0 && !override;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
@@ -111,6 +113,12 @@ export default async function PickWinnerPage() {
             </Link>
             .
           </p>
+          <Link
+            href="/admin/pick-winner?override=true"
+            className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-[var(--line)] bg-[var(--paper)] px-4 py-2 font-[family-name:var(--font-montserrat)] text-sm font-semibold text-[var(--ink)] transition-colors hover:bg-[var(--muted)]"
+          >
+            Change Winners
+          </Link>
         </div>
       ) : (
         <PickWinnerForm
@@ -118,6 +126,7 @@ export default async function PickWinnerPage() {
           monthLabel={label}
           photos={photoEntries}
           videos={videoEntries}
+          isOverride={override && existingWinners.length > 0}
         />
       )}
     </div>

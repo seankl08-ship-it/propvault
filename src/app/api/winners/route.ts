@@ -67,6 +67,29 @@ export async function POST(request: Request) {
   return NextResponse.json(winner, { status: 201 });
 }
 
+// DELETE /api/winners?month=2026-07 — admin clears all winners for a month.
+export async function DELETE(request: Request) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const role = (session.user as { role?: string }).role;
+  if (role !== "admin") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const { searchParams } = new URL(request.url);
+  const month = searchParams.get("month") ?? "";
+  if (!month) {
+    return NextResponse.json({ error: "month is required" }, { status: 400 });
+  }
+
+  await db.monthlyWinner.deleteMany({ where: { month } });
+
+  return NextResponse.json({ ok: true });
+}
+
 // GET /api/winners — list all winners.
 export async function GET() {
   const session = await auth();

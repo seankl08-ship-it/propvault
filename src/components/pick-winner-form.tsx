@@ -19,6 +19,7 @@ interface PickWinnerFormProps {
   monthLabel: string;
   photos: MediaEntry[];
   videos: MediaEntry[];
+  isOverride?: boolean;
 }
 
 function MediaCard({
@@ -73,7 +74,7 @@ function MediaCard({
   );
 }
 
-export function PickWinnerForm({ month, monthLabel, photos, videos }: PickWinnerFormProps) {
+export function PickWinnerForm({ month, monthLabel, photos, videos, isOverride }: PickWinnerFormProps) {
   const router = useRouter();
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
@@ -89,6 +90,11 @@ export function PickWinnerForm({ month, monthLabel, photos, videos }: PickWinner
     setError(null);
 
     try {
+      if (isOverride) {
+        const del = await fetch(`/api/winners?month=${encodeURIComponent(month)}`, { method: "DELETE" });
+        if (!del.ok) throw new Error("Failed to clear existing winners");
+      }
+
       const picks: { photoId: string; category: string }[] = [];
       if (selectedPhoto) picks.push({ photoId: selectedPhoto, category: "photo" });
       if (selectedVideo) picks.push({ photoId: selectedVideo, category: "video" });
