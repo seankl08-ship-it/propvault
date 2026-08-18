@@ -71,7 +71,13 @@ export function MobileMenuButton({ isAdmin }: { isAdmin?: boolean }) {
         {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </button>
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-1 w-48 overflow-hidden rounded-xl border border-white/10 bg-[var(--ink)] shadow-xl">
+        <>
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setOpen(false)}
+            aria-hidden="true"
+          />
+          <div className="fixed right-4 top-[70px] z-50 w-52 overflow-hidden rounded-xl border border-white/10 bg-[var(--ink)] shadow-xl">
           {items.map((item) => {
             const active =
               item.href === "/albums"
@@ -95,6 +101,7 @@ export function MobileMenuButton({ isAdmin }: { isAdmin?: boolean }) {
             );
           })}
         </div>
+        </>
       )}
     </div>
   );
