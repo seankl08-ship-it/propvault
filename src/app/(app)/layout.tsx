@@ -27,7 +27,7 @@ export default async function AppLayout({
         </Link>
         <TopNav isAdmin={isAdmin} />
         <TopSearch />
-        <div className="hidden shrink-0 md:block">
+        <div className="shrink-0">
           <UploadPhotosButton />
         </div>
         <UserMenu displayName={displayName} />

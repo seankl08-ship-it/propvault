@@ -88,21 +88,9 @@ export function PhotoCard({
           </div>
         </Link>
 
+        {/* Desktop hover overlay — download + delete only (like moved below) */}
         <div className="pointer-events-none absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/60 via-transparent to-black/40 opacity-0 transition-opacity group-hover:opacity-100">
           <div className="flex justify-end gap-1 p-2">
-            <button
-              type="button"
-              onClick={toggleLike}
-              disabled={pending}
-              className="pointer-events-auto inline-flex h-8 w-8 items-center justify-center rounded-md bg-black/50 text-white backdrop-blur hover:bg-black/70 disabled:opacity-60"
-              title={liked ? "Unlike" : "Like"}
-            >
-              <Heart
-                className="h-4 w-4"
-                fill={liked ? "var(--pink)" : "none"}
-                stroke={liked ? "var(--pink)" : "white"}
-              />
-            </button>
             <a
               href={`/api/photos/${photoId}/download`}
               className="pointer-events-auto inline-flex h-8 w-8 items-center justify-center rounded-md bg-black/50 text-white backdrop-blur hover:bg-black/70"
@@ -133,14 +121,21 @@ export function PhotoCard({
           <span className="truncate font-[family-name:var(--font-mukta)] text-[13px] text-[var(--ink-3)]">
             {uploaderName}
           </span>
-          <span className="flex shrink-0 items-center gap-1 font-[family-name:var(--font-mukta)] text-[13px] text-[var(--ink-3)]">
+          {/* Like button always visible — works on touch without hover */}
+          <button
+            type="button"
+            onClick={toggleLike}
+            disabled={pending}
+            className="flex shrink-0 items-center gap-1 font-[family-name:var(--font-mukta)] text-[13px] text-[var(--ink-3)] disabled:opacity-60"
+            title={liked ? "Unlike" : "Like"}
+          >
             <Heart
               className="h-3.5 w-3.5"
               fill={liked ? "var(--pink)" : "none"}
               stroke={liked ? "var(--pink)" : "currentColor"}
             />
             {count}
-          </span>
+          </button>
         </div>
       </div>
     </div>
